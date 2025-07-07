@@ -86,7 +86,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
     if (result.success) {
       toast({
         title: "Profile Saved!",
-        description: "Your co-founder profile is ready.",
+        description: "Your CoFoundr profile is ready.",
       });
       onSuccess();
     } else {
@@ -107,7 +107,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
       className="max-w-4xl mx-auto"
     >
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold">Create Your CoFounder Profile</h1>
+        <h1 className="text-3xl font-bold">Create Your CoFoundr Profile</h1>
         <p className="text-muted-foreground">This will help us find your ideal match.</p>
       </div>
       <Form {...form}>
@@ -202,7 +202,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
               )}
           </Section>
           
-          <Section title="Ideal Co-Founder" description="Describe who you're looking for." icon={Users}>
+          <Section title="Ideal Co-founder" description="Describe who you're looking for." icon={Users}>
             <div className="md:col-span-2"><FormField control={form.control} name="cofounder_looking_for_roles" render={({ field }) => ( <FormItem><FormLabel>Role(s) you're looking for</FormLabel><FormControl><Input placeholder="CEO, Marketing Lead" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
             <div className="md:col-span-2"><FormField control={form.control} name="cofounder_looking_for_skills" render={({ field }) => ( <FormItem><FormLabel>Key skills they should have</FormLabel><FormControl><Input placeholder="Sales, UI/UX Design, Go-to-market" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
             <div className="md:col-span-2"><FormField control={form.control} name="cofounder_personality_traits" render={({ field }) => ( <FormItem><FormLabel>Important personality traits</FormLabel><FormControl><Textarea placeholder="e.g., Data-driven, visionary, resilient" {...field} /></FormControl><FormMessage /></FormItem> )} /></div>

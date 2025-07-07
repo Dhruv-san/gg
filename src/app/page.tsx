@@ -76,6 +76,29 @@ const sectionVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.1 } },
 };
 
+const sentenceVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const wordVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: "spring",
+            damping: 12,
+            stiffness: 100,
+        },
+    },
+};
+
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>("signup");
@@ -139,12 +162,17 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-background text-foreground font-body antialiased">
-      <div className="absolute inset-0 -z-10 h-full w-full bg-background bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)/0.1),rgba(255,255,255,0))]"></div>
+      <div className="absolute inset-0 -z-10 h-full w-full bg-background bg-gradient-to-tr from-background via-primary/10 to-accent/10 bg-[size:400%_400%] animate-aurora"></div>
       
       <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-background/50 backdrop-blur-lg">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Logo />
-          <Button>Get Started</Button>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button>Get Started</Button>
+          </motion.div>
         </div>
       </header>
 
@@ -167,8 +195,19 @@ export default function Home() {
                     Now in Private Beta
                   </span>
                 </motion.div>
-                <motion.h1 variants={heroItemVariants} className="text-4xl sm:text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-foreground to-muted-foreground leading-tight">
-                  Find Your Perfect Co-Founder
+                <motion.h1
+                  variants={sentenceVariants}
+                  className="text-4xl sm:text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-foreground to-muted-foreground leading-tight"
+                >
+                  {"Find Your Perfect Co-founder".split(" ").map((word, index) => (
+                    <motion.span
+                      key={word + "-" + index}
+                      variants={wordVariants}
+                      className="inline-block mr-4"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
                 </motion.h1>
                 <motion.p variants={heroItemVariants} className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                   The ultimate platform for entrepreneurs, engineers, and visionaries to connect and build the future, together.
@@ -210,12 +249,17 @@ export default function Home() {
                 <div className="text-center max-w-3xl mx-auto">
                     <motion.h2 variants={heroItemVariants} className="text-4xl font-bold">Everything You Need to Find a Match</motion.h2>
                     <motion.p variants={heroItemVariants} className="mt-4 text-lg text-muted-foreground">
-                      CoFound isn't just a list. It's a comprehensive platform to discover, vet, and connect with your future business partner.
+                      CoFoundr isn't just a list. It's a comprehensive platform to discover, vet, and connect with your future business partner.
                     </motion.p>
                 </div>
                 <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {features.map((feature, i) => (
-                    <motion.div key={i} variants={heroItemVariants}>
+                    <motion.div 
+                      key={i} 
+                      variants={heroItemVariants}
+                      whileHover={{ y: -8, scale: 1.03 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       <FeatureCard title={feature.title} icon={feature.icon}>
                         {feature.description}
                       </FeatureCard>
@@ -235,7 +279,14 @@ export default function Home() {
                   <motion.p variants={heroItemVariants} className="text-muted-foreground mb-8">POWERING THE NEXT GENERATION OF STARTUPS</motion.p>
                   <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8">
                     {logos.map((logo, i) => (
-                      <motion.p key={i} variants={heroItemVariants} className="font-mono text-xl text-muted-foreground">{logo}</motion.p>
+                      <motion.p 
+                        key={i} 
+                        variants={heroItemVariants} 
+                        className="font-mono text-xl text-muted-foreground transition-colors duration-300 hover:text-foreground"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        {logo}
+                      </motion.p>
                     ))}
                   </div>
               </motion.section>
@@ -248,7 +299,7 @@ export default function Home() {
       <footer className="w-full border-t border-border/30">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between p-8 gap-6">
           <Logo />
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} CoFound. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} CoFoundr. All rights reserved.</p>
           <div className="flex space-x-4">
               <Button variant="ghost" size="sm">Terms</Button>
               <Button variant="ghost" size="sm">Privacy</Button>

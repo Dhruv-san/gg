@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'CoFound - Find Your Perfect Co-Founder',
+  title: 'CoFoundr - Find Your Perfect Co-founder',
   description: 'The ultimate platform for entrepreneurs, engineers, and visionaries to connect and build the future, together.',
 };
 
