@@ -1,10 +1,10 @@
+
 "use client";
 
 import { useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
-import { Check, Handshake, Lightbulb, Rocket, Users, Target } from "lucide-react";
+import { Check, Handshake, Lightbulb, Rocket, Users, Target, Code, Megaphone, PenTool } from "lucide-react";
 
 import Logo from "@/components/cofound/logo";
 import { SignupView } from "@/components/cofound/signup-view";
@@ -51,12 +51,21 @@ const features = [
 
 const logos = [ "Innovate Inc.", "Future Ventures", "TechBuilders", "Synergy Labs", "Visionary Co."];
 
+const floatingIcons = [
+  { icon: Rocket, delay: 0, size: 'w-10 h-10 md:w-12 md:h-12', position: 'top-0 left-1/4' },
+  { icon: PenTool, delay: 0.5, size: 'w-12 h-12 md:w-16 md:h-16', position: 'top-1/3 right-0' },
+  { icon: Lightbulb, delay: 1, size: 'w-10 h-10 md:w-14 md:h-14', position: 'top-3/4 left-0' },
+  { icon: Code, delay: 1.5, size: 'w-12 h-12', position: 'bottom-0 right-1/4' },
+  { icon: Megaphone, delay: 2, size: 'w-8 h-8 md:w-10 md:h-10', position: 'top-1/2 left-1/5' },
+  { icon: Target, delay: 2.5, size: 'w-10 h-10 md:w-14 md:h-14', position: 'bottom-1/4 right-1/5' },
+];
+
 const FeatureCard = ({ icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) => {
   const Icon = icon;
   return (
     <div className="bg-card/50 p-6 rounded-2xl border border-border/30 shadow-lg backdrop-blur-sm h-full">
       <div className="flex items-center gap-4 mb-4">
-        <div className="bg-primary/10 text-primary p-3 rounded-xl">
+        <div className="bg-primary/10 text-primary p-3 rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-12deg]">
           <Icon className="h-6 w-6" />
         </div>
         <h3 className="text-xl font-bold text-foreground">{title}</h3>
@@ -219,21 +228,45 @@ export default function Home() {
                 <motion.p variants={heroItemVariants} className="mt-4 text-sm text-muted-foreground">Join thousands of builders on the waitlist.</motion.p>
               
                 <motion.div 
-                  className="mt-20 w-full"
+                  className="mt-20 w-full flex justify-center items-center"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                  <div className="relative">
-                    <div className="absolute -inset-2 h-full w-full bg-gradient-to-r from-primary to-accent rounded-2xl transform-gpu blur-3xl opacity-20" />
-                    <Image 
-                      src="https://placehold.co/1200x600.png"
-                      alt="Dashboard preview"
-                      width={1200}
-                      height={600}
-                      data-ai-hint="dashboard screen"
-                      className="relative rounded-2xl border border-border/30 shadow-2xl"
-                    />
+                  <div className="relative w-full max-w-xs md:max-w-xl h-80">
+                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl"></div>
+                    <motion.div 
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <Handshake className="w-16 h-16 md:w-20 md:h-20 text-primary opacity-50" />
+                    </motion.div>
+
+                    {floatingIcons.map((item, index) => {
+                      const Icon = item.icon;
+                      return (
+                        <motion.div
+                          key={index}
+                          className={`absolute p-3 bg-card/60 backdrop-blur-md rounded-2xl shadow-lg border border-border/30 ${item.position}`}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1, y: [0, -15, 0] }}
+                          transition={{
+                            opacity: { delay: item.delay, duration: 0.5 },
+                            scale: { delay: item.delay, duration: 0.5 },
+                            y: {
+                              delay: item.delay,
+                              duration: 4 + Math.random() * 2,
+                              repeat: Infinity,
+                              repeatType: 'mirror',
+                              ease: 'easeInOut',
+                            },
+                          }}
+                        >
+                          <Icon className={`${item.size} text-primary`} />
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </section>
@@ -259,6 +292,7 @@ export default function Home() {
                       variants={heroItemVariants}
                       whileHover={{ y: -8, scale: 1.03 }}
                       transition={{ type: "spring", stiffness: 300 }}
+                      className="group"
                     >
                       <FeatureCard title={feature.title} icon={feature.icon}>
                         {feature.description}

@@ -4,18 +4,18 @@ import React from 'react';
 const Logo = () => (
   <motion.div 
     className="flex flex-col items-start cursor-pointer"
-    whileHover={{ scale: 1.02 }}
+    whileHover={{ scale: 1.05 }}
     transition={{ type: 'spring', stiffness: 400, damping: 10 }}
   >
-    <div className="flex items-center text-4xl font-extrabold tracking-tighter text-foreground">
+    <div className="flex items-center text-2xl font-extrabold tracking-tighter text-foreground">
       <span>C</span>
       <svg
-        width="32"
-        height="32"
+        width="24"
+        height="24"
         viewBox="0 0 32 32"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="mx-[-2px] relative top-[-1px]"
+        className="mx-[-1px] relative top-[-2px]"
       >
         <path
           fillRule="evenodd"
@@ -26,7 +26,7 @@ const Logo = () => (
       </svg>
       <span>FOUNDR</span>
     </div>
-    <div className="text-xs font-medium text-primary -mt-1 tracking-wide">
+    <div className="text-[10px] font-medium text-primary -mt-1.5 tracking-wide">
         WHERE FOUNDERS MEET, AND FUTURES BEGIN
     </div>
   </motion.div>
