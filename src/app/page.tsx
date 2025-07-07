@@ -222,10 +222,9 @@ export default function Home() {
                   The ultimate platform for entrepreneurs, engineers, and visionaries to connect and build the future, together.
                 </motion.p>
 
-                <motion.div variants={heroItemVariants} className="mt-10 w-full max-w-3xl">
+                <motion.div variants={heroItemVariants} className="mt-10 w-full max-w-lg mx-auto">
                   <SignupView onSuccess={handleSignupSuccess} />
                 </motion.div>
-                <motion.p variants={heroItemVariants} className="mt-4 text-sm text-muted-foreground">Join thousands of builders on the waitlist.</motion.p>
               
                 <motion.div 
                   className="mt-20 w-full flex justify-center items-center"
