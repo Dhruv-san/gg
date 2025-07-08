@@ -29,7 +29,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "../ui/label";
 import { Progress } from "@/components/ui/progress";
-import { generateBio } from "@/ai/flows/generate-bio-flow";
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
@@ -128,7 +127,6 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [isGeneratingBio, setIsGeneratingBio] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -161,38 +159,6 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
   });
 
   const watchHasIdea = form.watch("has_idea");
-  const watchFullName = form.watch("full_name");
-  const watchPrimaryRole = form.watch("primary_role_seeking");
-  const watchCoreSkills = form.watch("core_skills");
-
-  const canGenerateBio = !!watchFullName && !!watchPrimaryRole && !!(watchCoreSkills && watchCoreSkills.length > 0);
-
-  const handleGenerateBio = async () => {
-    setIsGeneratingBio(true);
-    try {
-        const result = await generateBio({
-            fullName: form.getValues("full_name") || "",
-            primaryRole: form.getValues("primary_role_seeking") || "",
-            coreSkills: form.getValues("core_skills") || []
-        });
-        if (result.bio) {
-            form.setValue("bio", result.bio, { shouldValidate: true });
-            toast({
-                title: "Bio Generated!",
-                description: "Your AI-powered bio is ready.",
-            });
-        }
-    } catch (error) {
-        console.error("AI Bio generation failed:", error);
-        toast({
-            variant: "destructive",
-            title: "Generation Failed",
-            description: "Couldn't generate a bio at this time.",
-        });
-    } finally {
-        setIsGeneratingBio(false);
-    }
-  };
 
   const processForm = async (values: ProfileFormValues) => {
     setIsSubmitting(true);
@@ -225,11 +191,27 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
       });
       onSuccess();
     } else {
-      toast({
-        variant: "destructive",
-        title: "Submission Failed",
-        description: result.error || "An unexpected error occurred.",
-      });
+      if (result.errors) {
+        toast({
+            variant: "destructive",
+            title: "Submission Failed",
+            description: "Please check the highlighted fields and try again.",
+        });
+        Object.entries(result.errors).forEach(([field, messages]) => {
+            if (messages) {
+                form.setError(field as keyof ProfileFormValues, { 
+                    type: "server", 
+                    message: messages.join(', ') 
+                });
+            }
+        });
+      } else {
+        toast({
+            variant: "destructive",
+            title: "Submission Failed",
+            description: result.error || "An unexpected error occurred.",
+        });
+      }
     }
   };
 
@@ -346,13 +328,8 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
                         <FormField control={form.control} name="bio" render={({ field }) => ( <FormItem>
                           <FormLabel className="flex items-center justify-between w-full">
                             <span className="flex items-center gap-2"><NotebookText className="h-4 w-4" />Short Bio</span>
-                            <Button type="button" size="sm" variant="outline" onClick={handleGenerateBio} disabled={!canGenerateBio || isGeneratingBio} className="text-xs">
-                              {isGeneratingBio ? ( <Loader2 className="h-4 w-4 animate-spin" /> ) : ( <WandSparkles className="h-4 w-4 mr-2" /> )}
-                              Generate with AI
-                            </Button>
                           </FormLabel>
                           <FormControl><Textarea placeholder="A brief introduction about yourself (max 500 chars)" {...field} /></FormControl>
-                          {!canGenerateBio && <FormDescription>Fill in Full Name, Primary Role, and Core Skills to enable AI generation.</FormDescription>}
                           <FormMessage /></FormItem> )} />
                       </div>
                     </>

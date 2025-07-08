@@ -24,11 +24,11 @@ export const profileSchema = z.object({
   avatar: z.any()
     .optional()
     .refine(
-      (files) => !files || files.size === 0 || files?.[0]?.size <= MAX_FILE_SIZE,
+      (files) => !files || files.length === 0 || files?.[0]?.size <= MAX_FILE_SIZE,
       `Max image size is 3MB.`
     )
     .refine(
-      (files) => !files || files.size === 0 || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      (files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png and .gif formats are supported."
     ),
   username: z.string().min(3, "Username must be at least 3 characters").max(50),
@@ -53,14 +53,4 @@ export const profileSchema = z.object({
   preferred_cofounder_location: z.string().optional(),
   interests: textToArray,
   equity_split_expectation: z.string().optional(),
-});
-
-export const GenerateBioInputSchema = z.object({
-  fullName: z.string().describe('The full name of the user.'),
-  primaryRole: z.string().describe('The primary role the user is seeking.'),
-  coreSkills: z.array(z.string()).describe("A list of the user's core skills."),
-});
-
-export const GenerateBioOutputSchema = z.object({
-  bio: z.string().describe('The generated user bio, in the first person and under 500 characters.'),
 });
