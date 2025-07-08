@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { User } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Handshake, Lightbulb, Rocket, Users, Target, Code, Megaphone, PenTool } from "lucide-react";
+import { Check, Handshake, Lightbulb, Rocket, Users, Target, Code, Megaphone, PenTool, AlertCircle, Loader2 } from "lucide-react";
 
 import Logo from "@/components/cofound/logo";
 import { SignupView } from "@/components/cofound/signup-view";
@@ -12,8 +12,11 @@ import { ProfilePromptView } from "@/components/cofound/profile-prompt-view";
 import { ProfileFormView } from "@/components/cofound/profile-form-view";
 import { ThankYouView } from "@/components/cofound/thank-you-view";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-type Stage = "signup" | "prompt" | "profile" | "complete";
+type Stage = "signup" | "prompt" | "profile" | "complete" | "check_email";
 type AppUser = Pick<User, "id" | "email">;
 
 const features = [
@@ -113,10 +116,51 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>("signup");
   const [user, setUser] = useState<AppUser | null>(null);
   const [profileSkipped, setProfileSkipped] = useState(false);
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+  const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (
+      supabaseUrl &&
+      supabaseUrl !== "YOUR_SUPABASE_URL" &&
+      supabaseAnonKey &&
+      supabaseAnonKey !== "YOUR_SUPABASE_ANON_KEY"
+    ) {
+      setSupabase(createClient());
+      setIsConfigured(true);
+    } else {
+      setIsConfigured(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    const checkUser = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        if (stage === 'signup') {
+          const { count } = await supabase
+            .from('waitlist_profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('id', authUser.id);
+          
+          if (count === 0) {
+            setUser({ id: authUser.id, email: authUser.email! });
+            setStage('profile');
+          }
+        }
+      }
+    };
+    checkUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase]);
 
   const handleSignupSuccess = (newUser: AppUser) => {
     setUser(newUser);
-    setStage("prompt");
+    setStage("check_email");
   };
 
   const handlePromptChoice = (createProfile: boolean) => {
@@ -143,6 +187,15 @@ export default function Home() {
     switch (stage) {
       case "signup":
         return null;
+      case "check_email":
+        return (
+          <motion.div key="check_email" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-lg mx-auto">
+            <ThankYouView
+              email={user?.email || ""}
+              isCheckEmailStage={true}
+            />
+          </motion.div>
+        );
       case "prompt":
         return (
           <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-lg mx-auto">
@@ -175,6 +228,39 @@ export default function Home() {
         return null;
     }
   };
+  
+  if (isConfigured === null) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isConfigured === false) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-lg border-destructive">
+          <CardHeader>
+            <div className="flex items-center gap-4 text-destructive">
+              <AlertCircle className="h-8 w-8" />
+              <CardTitle>Configuration Error</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>Your application is not configured to connect to Supabase.</p>
+            <p className="text-sm text-muted-foreground">
+              Please create a <code>.env</code> file in your project's root directory and add your Supabase URL and Anon Key. You can find these credentials in your Supabase project's API settings.
+            </p>
+            <div className="bg-muted p-4 rounded-md text-sm font-mono text-muted-foreground">
+              NEXT_PUBLIC_SUPABASE_URL=...<br />
+              NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-background text-foreground font-body antialiased">
