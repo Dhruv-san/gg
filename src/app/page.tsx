@@ -110,7 +110,7 @@ const wordVariants = {
 
 
 export default function Home() {
-  const [stage, setStage] = useState<Stage>("prompt");
+  const [stage, setStage] = useState<Stage>("profile");
   const [user, setUser] = useState<AppUser | null>({ id: "mock-user-id", email: "you@company.com" });
   const [profileSkipped, setProfileSkipped] = useState(false);
 
