@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "../ui/label";
 import { Progress } from "@/components/ui/progress";
+import { generateBio } from "@/ai/flows/generate-bio-flow";
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
@@ -43,14 +44,14 @@ const steps = [
     title: 'About You',
     icon: User,
     description: "Your personal and professional identity.",
-    fields: ['avatar', 'username', 'full_name', 'location', 'bio', 'linkedin_url', 'website_url']
+    fields: ['avatar', 'username', 'full_name', 'location', 'linkedin_url', 'website_url']
   },
   {
     id: 'expertise',
     title: 'Your Expertise',
     icon: DraftingCompass,
     description: "What you bring to the table.",
-    fields: ['primary_role_seeking', 'years_experience', 'core_skills', 'industry_experience']
+    fields: ['primary_role_seeking', 'years_experience', 'core_skills', 'industry_experience', 'bio']
   },
   {
     id: 'idea',
@@ -127,6 +128,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isGeneratingBio, setIsGeneratingBio] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -138,6 +140,38 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
   });
 
   const watchHasIdea = form.watch("has_idea");
+  const watchFullName = form.watch("full_name");
+  const watchPrimaryRole = form.watch("primary_role_seeking");
+  const watchCoreSkills = form.watch("core_skills");
+
+  const canGenerateBio = !!watchFullName && !!watchPrimaryRole && !!(watchCoreSkills && watchCoreSkills.length > 0);
+
+  const handleGenerateBio = async () => {
+    setIsGeneratingBio(true);
+    try {
+        const result = await generateBio({
+            fullName: form.getValues("full_name") || "",
+            primaryRole: form.getValues("primary_role_seeking") || "",
+            coreSkills: form.getValues("core_skills") || []
+        });
+        if (result.bio) {
+            form.setValue("bio", result.bio, { shouldValidate: true });
+            toast({
+                title: "Bio Generated!",
+                description: "Your AI-powered bio is ready.",
+            });
+        }
+    } catch (error) {
+        console.error("AI Bio generation failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Generation Failed",
+            description: "Couldn't generate a bio at this time.",
+        });
+    } finally {
+        setIsGeneratingBio(false);
+    }
+  };
 
   const processForm = async (values: ProfileFormValues) => {
     setIsSubmitting(true);
@@ -147,7 +181,9 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
       if (key === 'avatar' && (value as any)?.[0]) {
         formData.append(key, (value as any)[0]);
       } else if (value !== undefined && value !== null) {
-        if (typeof value === 'boolean') {
+        if (Array.isArray(value)) {
+           formData.append(key, value.join(','));
+        } else if (typeof value === 'boolean') {
            formData.append(key, String(value));
         } else {
            formData.append(key, value as string | Blob);
@@ -270,9 +306,6 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
                       <FormField control={form.control} name="username" render={({ field }) => ( <FormItem><FormLabel>Username</FormLabel><FormControl><div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="your_unique_username" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <FormField control={form.control} name="full_name" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><div className="relative"><UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Ada Lovelace" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <FormField control={form.control} name="location" render={({ field }) => ( <FormItem><FormLabel>Location</FormLabel><FormControl><div className="relative"><MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="City, Country" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
-                      <div className="md:col-span-2">
-                        <FormField control={form.control} name="bio" render={({ field }) => ( <FormItem><FormLabel className="flex items-center gap-2"><NotebookText className="h-4 w-4" />Short Bio</FormLabel><FormControl><Textarea placeholder="A brief introduction about yourself (max 500 chars)" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                      </div>
                       <FormField control={form.control} name="linkedin_url" render={({ field }) => ( <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative"><Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="https://linkedin.com/in/..." className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <FormField control={form.control} name="website_url" render={({ field }) => ( <FormItem><FormLabel>Personal Website</FormLabel><FormControl><div className="relative"><LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="https://your-portfolio.com" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                     </>
@@ -283,10 +316,23 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
                       <FormField control={form.control} name="primary_role_seeking" render={({ field }) => ( <FormItem><FormLabel>Primary Role</FormLabel><FormControl><div className="relative"><Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="e.g., CTO, Lead Engineer" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <FormField control={form.control} name="years_experience" render={({ field }) => ( <FormItem><FormLabel>Years of Experience</FormLabel><FormControl><div className="relative"><CalendarClock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input type="number" placeholder="5" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <div className="md:col-span-2">
-                      <FormField control={form.control} name="core_skills" render={({ field }) => ( <FormItem><FormLabel>Core Skills & Expertise</FormLabel><FormControl><div className="relative"><WandSparkles className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="React, Node.js, Product Management" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
+                        <FormField control={form.control} name="core_skills" render={({ field }) => ( <FormItem><FormLabel>Core Skills & Expertise</FormLabel><FormControl><div className="relative"><WandSparkles className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="React, Node.js, Product Management" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
                       </div>
                       <div className="md:col-span-2">
-                      <FormField control={form.control} name="industry_experience" render={({ field }) => ( <FormItem><FormLabel>Industry Experience</FormLabel><FormControl><div className="relative"><Factory className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Fintech, SaaS, HealthTech" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
+                        <FormField control={form.control} name="industry_experience" render={({ field }) => ( <FormItem><FormLabel>Industry Experience</FormLabel><FormControl><div className="relative"><Factory className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Fintech, SaaS, HealthTech" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
+                      </div>
+                      <div className="md:col-span-2">
+                        <FormField control={form.control} name="bio" render={({ field }) => ( <FormItem>
+                          <FormLabel className="flex items-center justify-between w-full">
+                            <span className="flex items-center gap-2"><NotebookText className="h-4 w-4" />Short Bio</span>
+                            <Button type="button" size="sm" variant="outline" onClick={handleGenerateBio} disabled={!canGenerateBio || isGeneratingBio} className="text-xs">
+                              {isGeneratingBio ? ( <Loader2 className="h-4 w-4 animate-spin" /> ) : ( <WandSparkles className="h-4 w-4 mr-2" /> )}
+                              Generate with AI
+                            </Button>
+                          </FormLabel>
+                          <FormControl><Textarea placeholder="A brief introduction about yourself (max 500 chars)" {...field} /></FormControl>
+                          {!canGenerateBio && <FormDescription>Fill in Full Name, Primary Role, and Core Skills to enable AI generation.</FormDescription>}
+                          <FormMessage /></FormItem> )} />
                       </div>
                     </>
                   )}

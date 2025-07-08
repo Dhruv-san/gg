@@ -47,8 +47,14 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
     { cookies: { get: (name) => cookieStore.get(name)?.value } }
   );
 
-  const data = Object.fromEntries(formData);
-  const result = profileSchema.safeParse(data);
+  const rawData: {[k:string]: any} = Object.fromEntries(formData);
+  
+  // Convert checkbox values from string to boolean
+  if (rawData.has_idea) rawData.has_idea = rawData.has_idea === 'true';
+  if (rawData.willing_to_relocate) rawData.willing_to_relocate = rawData.willing_to_relocate === 'true';
+  if (rawData.years_experience) rawData.years_experience = parseInt(rawData.years_experience, 10);
+
+  const result = profileSchema.safeParse(rawData);
 
   if (!result.success) {
     console.error("Validation error:", result.error.flatten().fieldErrors);
