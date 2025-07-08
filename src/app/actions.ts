@@ -1,3 +1,4 @@
+
 "use server";
 
 import { z } from "zod";
@@ -5,15 +6,38 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { profileSchema, signupSchema } from "@/lib/schemas";
 
+const checkSupabaseCredentials = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (
+    !supabaseUrl ||
+    supabaseUrl === "YOUR_SUPABASE_URL" ||
+    !supabaseAnonKey ||
+    supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY"
+  ) {
+    return {
+      error: "Supabase URL and Anon Key are not configured. Please check your .env file.",
+      client: null,
+    };
+  }
+  
+  const cookieStore = cookies();
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: { get: (name) => cookieStore.get(name)?.value },
+  });
+
+  return { error: null, client: supabase };
+}
+
+
 export async function signUpWithEmailAndPassword(
   data: z.infer<typeof signupSchema>
 ) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (name) => cookieStore.get(name)?.value } }
-  );
+  const { error: clientError, client: supabase } = checkSupabaseCredentials();
+  if (clientError || !supabase) {
+    return { success: false, error: clientError };
+  }
 
   const result = signupSchema.safeParse(data);
 
@@ -40,12 +64,10 @@ export async function signUpWithEmailAndPassword(
 }
 
 export async function createOrUpdateProfile(userId: string, formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (name) => cookieStore.get(name)?.value } }
-  );
+  const { error: clientError, client: supabase } = checkSupabaseCredentials();
+  if (clientError || !supabase) {
+    return { success: false, error: clientError };
+  }
 
   const rawData: {[k:string]: any} = Object.fromEntries(formData);
   
