@@ -8,11 +8,20 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
   const origin = requestUrl.origin
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || supabaseUrl === "YOUR_SUPABASE_URL" || !supabaseAnonKey || supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY") {
+    const errorMessage = 'Supabase environment variables are not configured correctly on the server.';
+    console.error(errorMessage);
+    return NextResponse.redirect(`${origin}/auth/auth-code-error?message=${encodeURIComponent(errorMessage)}`);
+  }
+
   if (code) {
     const cookieStore = cookies()
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           get(name: string) {
@@ -29,8 +38,7 @@ export async function GET(request: NextRequest) {
     )
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
-        // You can create a custom error page to show the user
-        return NextResponse.redirect(`${origin}/auth/auth-code-error?message=${error.message}`);
+        return NextResponse.redirect(`${origin}/auth/auth-code-error?message=${encodeURIComponent(error.message)}`);
     }
   }
 
