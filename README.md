@@ -1,51 +1,43 @@
-# Firebase Studio
+# CoFound Waitlist
 
 This is a NextJS starter in Firebase Studio.
 
 To get started, take a look at src/app/page.tsx.
 
-## Deploying to Firebase App Hosting
+## Deploying to Vercel
 
-This application is ready to be deployed to Firebase App Hosting. Follow these steps:
+This application is ready to be deployed to Vercel. Follow these steps:
 
 ### Prerequisites
 
-1.  **Install the Firebase CLI:** If you haven't already, install the Firebase command-line tools.
-    ```bash
-    npm install -g firebase-tools
-    ```
+1.  **Create a Vercel Account:** If you don't have one, sign up at [vercel.com](https://vercel.com).
+2.  **Push to GitHub:** Ensure your code has been pushed to a GitHub repository.
 
 ### Deployment Steps
 
-1.  **Login to Firebase:**
-    ```bash
-    firebase login
-    ```
+1.  **Import Project on Vercel:**
+    *   Go to your [Vercel Dashboard](https://vercel.com/dashboard).
+    *   Click the **Add New...** button and select **Project**.
+    *   Find your GitHub repository and click **Import**.
 
-2.  **Initialize App Hosting:** In your project's root directory, run the initialization command. This will connect your local code to a Firebase project.
-    ```bash
-    firebase init apphosting
-    ```
-    Follow the prompts to select your Firebase project and create a new App Hosting backend.
+2.  **Configure Your Project:**
+    *   Vercel will automatically detect that this is a Next.js project and configure the build settings. You don't need to change anything here.
+    *   Expand the **Environment Variables** section.
+    *   Add the following two variables, using the same values from your `.env` file:
+        *   `NEXT_PUBLIC_SUPABASE_URL`
+        *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-3.  **Deploy the application:**
-    ```bash
-    firebase deploy
-    ```
+3.  **Deploy:**
+    *   Click the **Deploy** button. Vercel will now build and deploy your application.
 
 ### Post-Deployment Configuration
 
-After your first deployment, you must configure your environment variables and Supabase settings for your live app.
+After your first deployment, you must update your Supabase settings for your live app.
 
-1.  **Set Environment Variables:**
-    *   Go to the [Firebase Console](https://console.firebase.google.com).
-    *   Navigate to your project's **App Hosting** page.
-    *   Select your backend and go to the **Settings** tab.
-    *   In the **Environment variables** section, you will be prompted to create and set the values for the secrets `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Use the same values from your `.env` file.
-
-2.  **Update Supabase URL Configuration:**
+1.  **Update Supabase URL Configuration:**
+    *   Once the deployment is complete, Vercel will give you a production URL (e.g., `https-your-app.vercel.app`).
     *   Go to your **Supabase Dashboard**.
     *   Navigate to **Authentication** > **URL Configuration**.
-    *   Update the **Site URL** from `http://localhost:9002` to your new production URL provided by Firebase App Hosting (e.g., `https://your-app-name--backend.web.app`).
+    *   Update the **Site URL** from `http://localhost:9002` to your new production URL provided by Vercel.
 
 Your application is now live!
