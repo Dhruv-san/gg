@@ -110,8 +110,8 @@ const wordVariants = {
 
 
 export default function Home() {
-  const [stage, setStage] = useState<Stage>("profile");
-  const [user, setUser] = useState<AppUser | null>({ id: 'preview-user-id', email: 'test@example.com' });
+  const [stage, setStage] = useState<Stage>("signup");
+  const [user, setUser] = useState<AppUser | null>(null);
   const [profileSkipped, setProfileSkipped] = useState(false);
 
   const handleSignupSuccess = (newUser: AppUser) => {
@@ -131,6 +131,10 @@ export default function Home() {
   const handleProfileSuccess = () => {
     setProfileSkipped(false);
     setStage("complete");
+  };
+  
+  const handleLogoClick = () => {
+    setStage("signup");
   };
 
   const renderStage = () => {
@@ -175,7 +179,7 @@ export default function Home() {
       
       <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-background/50 backdrop-blur-lg">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
-          <Logo />
+          <Logo onClick={handleLogoClick} />
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -331,7 +335,7 @@ export default function Home() {
 
       <footer className="w-full border-t border-border/30">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between p-8 gap-6">
-          <Logo />
+          <Logo onClick={handleLogoClick} />
           <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} CoFoundr. All rights reserved.</p>
           <div className="flex space-x-4">
               <Button variant="ghost" size="sm">Terms</Button>

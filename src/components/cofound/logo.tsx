@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
-const Logo = () => (
+const Logo = ({ onClick }: { onClick?: () => void }) => (
   <motion.div 
+    onClick={onClick}
     className="flex flex-col items-start cursor-pointer"
     whileHover={{ scale: 1.05 }}
     transition={{ type: 'spring', stiffness: 400, damping: 10 }}
