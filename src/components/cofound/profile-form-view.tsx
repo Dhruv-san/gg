@@ -34,6 +34,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 interface ProfileFormViewProps {
   userId: string;
+  email: string;
   onSuccess: () => void;
 }
 
@@ -121,7 +122,7 @@ const stepVariants = {
   }),
 };
 
-export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => {
+export const ProfileFormView = ({ userId, email, onSuccess }: ProfileFormViewProps) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -133,6 +134,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
     resolver: zodResolver(profileSchema),
     mode: "onBlur",
     defaultValues: {
+      email: email,
       has_idea: false,
       willing_to_relocate: false,
       username: "",
@@ -239,7 +241,6 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
     setAvatarPreview(null);
     form.setValue('avatar', undefined);
     setAvatarRemoved(true);
-    // Also clear the file input for consistency
     const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";

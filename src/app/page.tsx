@@ -135,6 +135,8 @@ export default function Home() {
   
   const handleLogoClick = () => {
     setStage("signup");
+    setUser(null);
+    setProfileSkipped(false);
   };
 
   const renderStage = () => {
@@ -155,6 +157,7 @@ export default function Home() {
           <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
             <ProfileFormView
               userId={user!.id}
+              email={user!.email!}
               onSuccess={handleProfileSuccess}
             />
           </motion.div>

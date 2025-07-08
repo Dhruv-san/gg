@@ -71,7 +71,6 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
 
   const rawData: {[k:string]: any} = Object.fromEntries(formData);
   
-  // Convert checkbox values from string to boolean
   if (rawData.has_idea) rawData.has_idea = rawData.has_idea === 'true';
   if (rawData.willing_to_relocate) rawData.willing_to_relocate = rawData.willing_to_relocate === 'true';
   if (rawData.years_experience) rawData.years_experience = parseInt(rawData.years_experience, 10);
@@ -84,7 +83,7 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
   }
   
   const profileData = result.data;
-  let avatarUrl: string | null | undefined = undefined; // undefined: no change, null: remove, string: update
+  let avatarUrl: string | null | undefined = undefined;
   const avatarFile = formData.get('avatar') as File | null;
   const avatarRemoved = formData.get('avatar_removed') === 'true';
 
@@ -107,15 +106,9 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
     avatarUrl = null;
   }
 
-  // Get user email
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return { success: false, error: "User not authenticated." };
-  }
-
   const upsertData: any = {
     id: userId,
-    email: user.email,
+    email: profileData.email,
     username: profileData.username,
     full_name: profileData.full_name,
     location: profileData.location,

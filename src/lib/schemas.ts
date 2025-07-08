@@ -21,6 +21,7 @@ const textToArray = z.preprocess((val) => {
 
 
 export const profileSchema = z.object({
+  email: z.string().email(),
   avatar: z.any()
     .optional()
     .refine(
@@ -53,4 +54,14 @@ export const profileSchema = z.object({
   preferred_cofounder_location: z.string().optional(),
   interests: textToArray,
   equity_split_expectation: z.string().optional(),
+});
+
+export const GenerateBioInputSchema = z.object({
+  fullName: z.string(),
+  primaryRole: z.string(),
+  coreSkills: z.array(z.string()),
+});
+
+export const GenerateBioOutputSchema = z.object({
+  bio: z.string(),
 });
