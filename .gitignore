@@ -1,17 +1,15 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# See https://help.github.com/articles/ignoring-files/ for more about Ignoring files
 
 # dependencies
 /node_modules
 /.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+.pnp.js
 
 # testing
 /coverage
+
+# production
+/build
 
 # next.js
 /.next/
@@ -28,18 +26,38 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-.genkit/*
-.env*
+# supabase
+**/supabase/migrations
 
-# firebase
-firebase-debug.log
-firestore-debug.log
+# nx
+.nx/cache
+
+# ai
+.idx/
+
+# Other common ignores
+dist/
+tmp/
+*.log
+*.tgz
+*.swp
+
+# Add any specific project files you want to ignore below this line
+
