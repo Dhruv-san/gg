@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { profileSchema } from "@/lib/schemas";
+import { profileSchema, signupSchema } from "@/lib/schemas";
 
 const checkSupabaseCredentials = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
