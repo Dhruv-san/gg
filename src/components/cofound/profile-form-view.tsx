@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { Loader2, UploadCloud, User, MapPin, Briefcase, Lightbulb, Linkedin, Link as LinkIcon, Users, Building, DraftingCompass, Handshake, ArrowLeft, Check, UserCircle, NotebookText, CalendarClock, WandSparkles, Factory, Milestone, Search, Smile, Building2, Clock, PieChart, Globe, Heart } from "lucide-react";
+import { Loader2, UploadCloud, User, MapPin, Briefcase, Lightbulb, Linkedin, Link as LinkIcon, Users, Building, DraftingCompass, Handshake, ArrowLeft, Check, UserCircle, NotebookText, CalendarClock, WandSparkles, Factory, Milestone, Search, Smile, Building2, Clock, PieChart, Globe, Heart, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -127,6 +127,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarRemoved, setAvatarRemoved] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -181,6 +182,10 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
     formData.set('has_idea', String(values.has_idea));
     formData.set('willing_to_relocate', String(values.willing_to_relocate));
 
+    if (avatarRemoved) {
+        formData.append('avatar_removed', 'true');
+    }
+
     const result = await createOrUpdateProfile(userId, formData);
     setIsSubmitting(false);
 
@@ -228,6 +233,17 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
   const handlePrev = () => {
     setDirection(-1);
     setCurrentStep(prev => prev - 1);
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(null);
+    form.setValue('avatar', undefined);
+    setAvatarRemoved(true);
+    // Also clear the file input for consistency
+    const fileInput = document.getElementById('avatar-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
   
   const currentSection = steps[currentStep];
@@ -291,14 +307,21 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
                                       field.onChange(e.target.files);
                                       if (e.target.files && e.target.files[0]) {
                                         setAvatarPreview(URL.createObjectURL(e.target.files[0]));
+                                        setAvatarRemoved(false);
                                       }
                                     }}
                                   />
-                                  <Label htmlFor="avatar-upload" className="cursor-pointer">
+                                   <div className="flex flex-col gap-2">
                                     <Button type="button" variant="outline" onClick={() => document.getElementById('avatar-upload')?.click()}>
                                       Upload Image
                                     </Button>
-                                  </Label>
+                                    {avatarPreview && (
+                                      <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={handleRemoveAvatar}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Remove
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                               </FormControl>
                               <FormMessage />

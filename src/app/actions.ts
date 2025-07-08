@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { profileSchema, signupSchema } from "@/lib/schemas";
+import { profileSchema } from "@/lib/schemas";
 
 const checkSupabaseCredentials = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -84,8 +84,9 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
   }
   
   const profileData = result.data;
-  let avatarUrl: string | undefined = undefined;
+  let avatarUrl: string | null | undefined = undefined; // undefined: no change, null: remove, string: update
   const avatarFile = formData.get('avatar') as File | null;
+  const avatarRemoved = formData.get('avatar_removed') === 'true';
 
   if (avatarFile && avatarFile.size > 0) {
     const avatarPath = `${userId}/avatar_${Date.now()}`;
@@ -102,6 +103,8 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
       .getPublicUrl(uploadData.path);
     
     avatarUrl = publicUrlData.publicUrl;
+  } else if (avatarRemoved) {
+    avatarUrl = null;
   }
 
   // Get user email
@@ -110,7 +113,7 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
     return { success: false, error: "User not authenticated." };
   }
 
-  const { error: dbError } = await supabase.from('waitlist_profiles').upsert({
+  const upsertData: any = {
     id: userId,
     email: user.email,
     username: profileData.username,
@@ -135,9 +138,14 @@ export async function createOrUpdateProfile(userId: string, formData: FormData) 
     preferred_cofounder_location: profileData.preferred_cofounder_location,
     interests: profileData.interests,
     equity_split_expectation: profileData.equity_split_expectation,
-    avatar_url: avatarUrl,
     updated_at: new Date().toISOString(),
-  }, { onConflict: 'id' });
+  };
+
+  if (avatarUrl !== undefined) {
+    upsertData.avatar_url = avatarUrl;
+  }
+
+  const { error: dbError } = await supabase.from('waitlist_profiles').upsert(upsertData, { onConflict: 'id' });
 
   if (dbError) {
     return { success: false, error: `Database error: ${dbError.message}` };
