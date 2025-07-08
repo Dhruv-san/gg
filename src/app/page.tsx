@@ -110,8 +110,8 @@ const wordVariants = {
 
 
 export default function Home() {
-  const [stage, setStage] = useState<Stage>("complete");
-  const [user, setUser] = useState<AppUser | null>({ id: "mock-user-id", email: "you@company.com" });
+  const [stage, setStage] = useState<Stage>("signup");
+  const [user, setUser] = useState<AppUser | null>(null);
   const [profileSkipped, setProfileSkipped] = useState(false);
 
   const handleSignupSuccess = (newUser: AppUser) => {
