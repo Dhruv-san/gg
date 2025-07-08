@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { Loader2, UploadCloud, User, MapPin, Briefcase, Lightbulb, Linkedin, Link as LinkIcon, Users, Building, DraftingCompass, Handshake, ArrowLeft, Check } from "lucide-react";
+import { Loader2, UploadCloud, User, MapPin, Briefcase, Lightbulb, Linkedin, Link as LinkIcon, Users, Building, DraftingCompass, Handshake, ArrowLeft, Check, UserCircle, NotebookText, CalendarClock, WandSparkles, Factory, Milestone, Search, Smile, Building2, Clock, PieChart, Globe, Heart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -83,15 +83,16 @@ const Stepper = ({ currentStep }: { currentStep: number }) => (
           <motion.div
             animate={{
               backgroundColor: index <= currentStep ? "hsl(var(--primary))" : "hsl(var(--muted))",
-              color: index <= currentStep ? "hsl(var(--primary-foreground))" : "hsl(var(--muted-foreground))"
+              color: index <= currentStep ? "hsl(var(--primary-foreground))" : "hsl(var(--muted-foreground))",
+              scale: index === currentStep ? 1.1 : 1,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 20 }}
             className="flex z-10 items-center justify-center w-10 h-10 rounded-full ring-0 sm:ring-4 ring-background shrink-0"
           >
             {index < currentStep ? <Check className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
           </motion.div>
           <div className="hidden sm:flex flex-col ml-4">
-            <h3 className={`font-medium ${index === currentStep ? "text-primary" : ""}`}>{step.title}</h3>
+            <h3 className={`font-medium transition-colors duration-300 ${index === currentStep ? "text-primary" : ""}`}>{step.title}</h3>
             <p className="text-sm text-muted-foreground">{step.description}</p>
           </div>
         </div>
@@ -146,7 +147,6 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
       if (key === 'avatar' && (value as any)?.[0]) {
         formData.append(key, (value as any)[0]);
       } else if (value !== undefined && value !== null) {
-        // Convert boolean to string
         if (typeof value === 'boolean') {
            formData.append(key, String(value));
         } else {
@@ -155,7 +155,6 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
       }
     });
     
-    // Correctly append checkbox values
     formData.set('has_idea', String(values.has_idea));
     formData.set('willing_to_relocate', String(values.willing_to_relocate));
 
@@ -215,7 +214,7 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
               animate="visible"
               exit="exit"
             >
-              <Card className="bg-card/50 border-border/30">
+              <Card className="bg-card/60 backdrop-blur-sm shadow-2xl shadow-primary/10 border-primary/20">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <currentSection.icon className="h-6 w-6 text-primary" />
@@ -268,26 +267,26 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
                           )}
                         />
                       </div>
-                      <FormField control={form.control} name="username" render={({ field }) => ( <FormItem><FormLabel>Username</FormLabel><FormControl><Input placeholder="your_unique_username" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                      <FormField control={form.control} name="full_name" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Ada Lovelace" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                      <FormField control={form.control} name="location" render={({ field }) => ( <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="City, Country" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="username" render={({ field }) => ( <FormItem><FormLabel>Username</FormLabel><FormControl><div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="your_unique_username" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="full_name" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><div className="relative"><UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Ada Lovelace" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="location" render={({ field }) => ( <FormItem><FormLabel>Location</FormLabel><FormControl><div className="relative"><MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="City, Country" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <div className="md:col-span-2">
-                      <FormField control={form.control} name="bio" render={({ field }) => ( <FormItem><FormLabel>Short Bio</FormLabel><FormControl><Textarea placeholder="A brief introduction about yourself (max 500 chars)" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={form.control} name="bio" render={({ field }) => ( <FormItem><FormLabel className="flex items-center gap-2"><NotebookText className="h-4 w-4" />Short Bio</FormLabel><FormControl><Textarea placeholder="A brief introduction about yourself (max 500 chars)" {...field} /></FormControl><FormMessage /></FormItem> )} />
                       </div>
-                      <FormField control={form.control} name="linkedin_url" render={({ field }) => ( <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><Input placeholder="https://linkedin.com/in/..." {...field} /></FormControl><FormMessage /></FormItem> )} />
-                      <FormField control={form.control} name="website_url" render={({ field }) => ( <FormItem><FormLabel>Personal Website</FormLabel><FormControl><Input placeholder="https://your-portfolio.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="linkedin_url" render={({ field }) => ( <FormItem><FormLabel>LinkedIn Profile</FormLabel><FormControl><div className="relative"><Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="https://linkedin.com/in/..." className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="website_url" render={({ field }) => ( <FormItem><FormLabel>Personal Website</FormLabel><FormControl><div className="relative"><LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="https://your-portfolio.com" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                     </>
                   )}
 
                   {currentStep === 1 && (
                      <>
-                      <FormField control={form.control} name="primary_role_seeking" render={({ field }) => ( <FormItem><FormLabel>Primary Role</FormLabel><FormControl><Input placeholder="e.g., CTO, Lead Engineer" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                      <FormField control={form.control} name="years_experience" render={({ field }) => ( <FormItem><FormLabel>Years of Experience</FormLabel><FormControl><Input type="number" placeholder="5" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="primary_role_seeking" render={({ field }) => ( <FormItem><FormLabel>Primary Role</FormLabel><FormControl><div className="relative"><Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="e.g., CTO, Lead Engineer" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="years_experience" render={({ field }) => ( <FormItem><FormLabel>Years of Experience</FormLabel><FormControl><div className="relative"><CalendarClock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input type="number" placeholder="5" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} />
                       <div className="md:col-span-2">
-                      <FormField control={form.control} name="core_skills" render={({ field }) => ( <FormItem><FormLabel>Core Skills & Expertise</FormLabel><FormControl><Input placeholder="React, Node.js, Product Management" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="core_skills" render={({ field }) => ( <FormItem><FormLabel>Core Skills & Expertise</FormLabel><FormControl><div className="relative"><WandSparkles className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="React, Node.js, Product Management" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
                       </div>
                       <div className="md:col-span-2">
-                      <FormField control={form.control} name="industry_experience" render={({ field }) => ( <FormItem><FormLabel>Industry Experience</FormLabel><FormControl><Input placeholder="Fintech, SaaS, HealthTech" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
+                      <FormField control={form.control} name="industry_experience" render={({ field }) => ( <FormItem><FormLabel>Industry Experience</FormLabel><FormControl><div className="relative"><Factory className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Fintech, SaaS, HealthTech" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} />
                       </div>
                     </>
                   )}
@@ -313,9 +312,9 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
                         {watchHasIdea && (
                           <>
                            <div className="md:col-span-2">
-                            <FormField control={form.control} name="idea_description" render={({ field }) => ( <FormItem><FormLabel>Idea Description</FormLabel><FormControl><Textarea placeholder="Describe your startup idea (max 1000 chars)" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                            <FormField control={form.control} name="idea_description" render={({ field }) => ( <FormItem><FormLabel className="flex items-center gap-2"><Lightbulb className="h-4 w-4" />Idea Description</FormLabel><FormControl><Textarea placeholder="Describe your startup idea (max 1000 chars)" {...field} /></FormControl><FormMessage /></FormItem> )} />
                             </div>
-                            <FormField control={form.control} name="idea_stage" render={({ field }) => ( <FormItem><FormLabel>Idea Stage</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Idea">Idea</SelectItem><SelectItem value="MVP/Prototype">MVP/Prototype</SelectItem><SelectItem value="Early Traction">Early Traction</SelectItem><SelectItem value="Growth">Growth</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
+                             <FormField control={form.control} name="idea_stage" render={({ field }) => ( <FormItem><FormLabel>Idea Stage</FormLabel><div className="relative"><Milestone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" /><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="pl-10"><SelectValue placeholder="Select stage" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Idea">Idea</SelectItem><SelectItem value="MVP/Prototype">MVP/Prototype</SelectItem><SelectItem value="Early Traction">Early Traction</SelectItem><SelectItem value="Growth">Growth</SelectItem></SelectContent></Select></div><FormMessage /></FormItem> )} />
                           </>
                         )}
                     </>
@@ -323,19 +322,19 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
 
                   {currentStep === 3 && (
                      <>
-                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_looking_for_roles" render={({ field }) => ( <FormItem><FormLabel>Role(s) you're looking for</FormLabel><FormControl><Input placeholder="CEO, Marketing Lead" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
-                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_looking_for_skills" render={({ field }) => ( <FormItem><FormLabel>Key skills they should have</FormLabel><FormControl><Input placeholder="Sales, UI/UX Design, Go-to-market" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
-                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_personality_traits" render={({ field }) => ( <FormItem><FormLabel>Important personality traits</FormLabel><FormControl><Textarea placeholder="e.g., Data-driven, visionary, resilient" {...field} /></FormControl><FormMessage /></FormItem> )} /></div>
-                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_industry_background" render={({ field }) => ( <FormItem><FormLabel>Preferred industry background</FormLabel><FormControl><Input placeholder="e.g., B2B SaaS" {...field} /></FormControl><FormMessage /></FormItem> )} /></div>
+                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_looking_for_roles" render={({ field }) => ( <FormItem><FormLabel>Role(s) you're looking for</FormLabel><FormControl><div className="relative"><Users className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="CEO, Marketing Lead" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
+                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_looking_for_skills" render={({ field }) => ( <FormItem><FormLabel>Key skills they should have</FormLabel><FormControl><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Sales, UI/UX Design, Go-to-market" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
+                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_personality_traits" render={({ field }) => ( <FormItem><FormLabel className="flex items-center gap-2"><Smile className="h-4 w-4" />Important personality traits</FormLabel><FormControl><Textarea placeholder="e.g., Data-driven, visionary, resilient" {...field} /></FormControl><FormMessage /></FormItem> )} /></div>
+                      <div className="md:col-span-2"><FormField control={form.control} name="cofounder_industry_background" render={({ field }) => ( <FormItem><FormLabel>Preferred industry background</FormLabel><FormControl><div className="relative"><Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="e.g., B2B SaaS" className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} /></div>
                     </>
                   )}
                   
                   {currentStep === 4 && (
                     <>
-                       <FormField control={form.control} name="commitment_level" render={({ field }) => ( <FormItem><FormLabel>Your Commitment</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select commitment level" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Full-time">Full-time</SelectItem><SelectItem value="Part-time">Part-time</SelectItem><SelectItem value="Flexible">Flexible</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
-                       <FormField control={form.control} name="equity_split_expectation" render={({ field }) => ( <FormItem><FormLabel>Equity Split Expectation</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select equity expectation" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Negotiable">Negotiable</SelectItem><SelectItem value="Equal Split">Equal Split</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
-                       <div className="md:col-span-2"><FormField control={form.control} name="preferred_cofounder_location" render={({ field }) => ( <FormItem><FormLabel>Preferred Co-founder Location</FormLabel><FormControl><Input placeholder="Remote, New York, etc." {...field} /></FormControl><FormMessage /></FormItem> )} /></div>
-                       <div className="md:col-span-2"><FormField control={form.control} name="interests" render={({ field }) => ( <FormItem><FormLabel>Areas of Interest</FormLabel><FormControl><Input placeholder="AI, SaaS, Fintech, Creator Economy" {...field} /></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
+                       <FormField control={form.control} name="commitment_level" render={({ field }) => ( <FormItem><FormLabel>Your Commitment</FormLabel><div className="relative"><Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" /><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="pl-10"><SelectValue placeholder="Select commitment level" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Full-time">Full-time</SelectItem><SelectItem value="Part-time">Part-time</SelectItem><SelectItem value="Flexible">Flexible</SelectItem></SelectContent></Select></div><FormMessage /></FormItem> )} />
+                       <FormField control={form.control} name="equity_split_expectation" render={({ field }) => ( <FormItem><FormLabel>Equity Split Expectation</FormLabel><div className="relative"><PieChart className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" /><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="pl-10"><SelectValue placeholder="Select equity expectation" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Negotiable">Negotiable</SelectItem><SelectItem value="Equal Split">Equal Split</SelectItem></SelectContent></Select></div><FormMessage /></FormItem> )} />
+                       <div className="md:col-span-2"><FormField control={form.control} name="preferred_cofounder_location" render={({ field }) => ( <FormItem><FormLabel>Preferred Co-founder Location</FormLabel><FormControl><div className="relative"><Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="Remote, New York, etc." className="pl-10" {...field} /></div></FormControl><FormMessage /></FormItem> )} /></div>
+                       <div className="md:col-span-2"><FormField control={form.control} name="interests" render={({ field }) => ( <FormItem><FormLabel>Areas of Interest</FormLabel><FormControl><div className="relative"><Heart className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" /><Input placeholder="AI, SaaS, Fintech, Creator Economy" className="pl-10" {...field} /></div></FormControl><FormDescription>Comma-separated values.</FormDescription><FormMessage /></FormItem> )} /></div>
                        <div className="md:col-span-2 flex items-center space-x-2">
                         <FormField control={form.control} name="willing_to_relocate" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Willing to relocate</FormLabel></div></FormItem>)}/>
                       </div>
@@ -359,13 +358,18 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
 
             <div>
               {currentStep < steps.length - 1 && (
-                <Button type="button" onClick={handleNext}>
+                <Button type="button" onClick={handleNext} className="transition-all duration-300 hover:scale-105">
                   Next Step
                 </Button>
               )}
 
               {currentStep === steps.length - 1 && (
-                <Button type="submit" size="lg" className="font-bold" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/40" 
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
