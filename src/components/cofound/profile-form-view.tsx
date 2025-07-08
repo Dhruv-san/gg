@@ -136,7 +136,28 @@ export const ProfileFormView = ({ userId, onSuccess }: ProfileFormViewProps) => 
     defaultValues: {
       has_idea: false,
       willing_to_relocate: false,
-    }
+      username: "",
+      full_name: "",
+      location: "",
+      bio: "",
+      linkedin_url: "",
+      website_url: "",
+      primary_role_seeking: "",
+      years_experience: "" as any,
+      core_skills: [],
+      industry_experience: [],
+      idea_description: "",
+      idea_stage: "",
+      cofounder_looking_for_roles: [],
+      cofounder_looking_for_skills: [],
+      cofounder_personality_traits: "",
+      cofounder_industry_background: "",
+      commitment_level: "",
+      preferred_cofounder_location: "",
+      interests: [],
+      equity_split_expectation: "",
+      avatar: undefined,
+    },
   });
 
   const watchHasIdea = form.watch("has_idea");
