@@ -16,40 +16,41 @@ function ChoosePageContent() {
 
   useEffect(() => {
     const supabase = createClient();
-    
+    let isMounted = true;
+
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        setLoading(false);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (isMounted) {
+        if (user) {
+          setUser(user);
+          setLoading(false);
+        } else {
+          // If no user on initial check, wait for onAuthStateChange
+          // A timeout is a fallback in case the auth state change doesn't fire.
+          setTimeout(() => {
+            if (isMounted && !user) setLoading(false);
+          }, 1000);
+        }
       }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        setUser(session.user);
-        setLoading(false);
-      } else if (event === 'SIGNED_OUT') {
-        router.push('/');
+      if (isMounted) {
+        if (event === 'SIGNED_IN') {
+          setUser(session!.user);
+          setLoading(false);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setLoading(false);
+          router.push('/');
+        }
       }
     });
 
     checkUser();
 
-    // Initial check in case the user is already signed in
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-        setLoading(false);
-      } else {
-        // If no user and no sign-in event, might need to redirect after a timeout
-        setTimeout(() => {
-            if(!user) setLoading(false);
-        }, 1000)
-      }
-    });
-
     return () => {
+      isMounted = false;
       subscription?.unsubscribe();
     };
   }, [router]);

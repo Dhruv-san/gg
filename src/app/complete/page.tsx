@@ -13,30 +13,43 @@ function CompletePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   
   const skippedProfile = searchParams.get('skipped') === 'true';
 
   useEffect(() => {
     const supabase = createClient();
-    
+    let isMounted = true;
+
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (isMounted) {
+        if (user) {
+          setUser(user);
+        }
+        setLoading(false);
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser(session.user);
+      if (isMounted) {
+        setUser(session?.user || null);
+        setLoading(false);
       }
     });
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
+    checkUser();
 
     return () => {
+      isMounted = false;
       subscription?.unsubscribe();
     };
-  }, [router]);
+  }, []);
 
-
+  if (loading) {
+    return <Loader2 className="h-10 w-10 animate-spin text-primary" />;
+  }
+  
   return (
     <div className="w-full max-w-lg">
       <ThankYouView
