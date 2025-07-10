@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
 type AppUser = Pick<User, "id" | "email">;
 
@@ -111,8 +112,10 @@ const wordVariants = {
 
 export default function Home() {
   const router = useRouter();
+  const { toast } = useToast();
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -129,6 +132,27 @@ export default function Home() {
       setIsConfigured(false);
     }
   }, []);
+  
+  const handleGoogleSignIn = async () => {
+    if (!supabase) return;
+    setIsSubmitting(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign in Failed",
+        description: error.message || "An unexpected error occurred.",
+      });
+      setIsSubmitting(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!supabase) return;
@@ -197,7 +221,10 @@ export default function Home() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button>Get Started</Button>
+            <Button onClick={handleGoogleSignIn} disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Get Started
+            </Button>
           </motion.div>
         </div>
       </header>
