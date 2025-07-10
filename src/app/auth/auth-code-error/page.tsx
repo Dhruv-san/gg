@@ -40,8 +40,6 @@ function AuthErrorDisplay() {
 }
 
 export default function AuthErrorPage() {
-  // This top-level component is now a Suspense wrapper.
-  // It ensures the part of the page using search params can be dynamically rendered.
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
       <Suspense fallback={<Loader2 className="h-10 w-10 animate-spin text-primary" />}>

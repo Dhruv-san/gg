@@ -371,8 +371,13 @@ export default function Home() {
 
       <footer className="w-full border-t border-border/30">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between p-8 gap-6">
-          <Logo />
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} CoFoundr. All rights reserved.</p>
+           <div className="flex flex-col items-center md:items-start">
+            <Logo />
+            <p className="text-[10px] font-medium text-primary mt-1.5 tracking-wide">
+                WHERE FOUNDERS MEET, AND FUTURES BEGIN
+            </p>
+          </div>
+          <p className="text-sm text-muted-foreground text-center md:text-left">© {new Date().getFullYear()} CoFoundr. All rights reserved.</p>
           <div className="flex space-x-4">
               <Button variant="ghost" size="sm">Terms</Button>
               <Button variant="ghost" size="sm">Privacy</Button>

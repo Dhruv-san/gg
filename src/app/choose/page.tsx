@@ -1,12 +1,11 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProfilePromptView } from '@/components/cofound/profile-prompt-view';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState }from 'react';
 import type { User } from '@supabase/supabase-js';
 
 function ChoosePageContent() {
@@ -16,42 +15,32 @@ function ChoosePageContent() {
 
   useEffect(() => {
     const supabase = createClient();
-    let isMounted = true;
-
-    const checkAndSetUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (isMounted) {
-        setUser(user);
-        // We set loading to false only after the initial check is complete.
-        setLoading(false);
-      }
-    };
-    
-    // Perform the initial check.
-    checkAndSetUser();
-
-    // Set up the listener for subsequent auth events.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (isMounted) {
-        setUser(session?.user ?? null);
-        setLoading(false); // Also update loading state on auth changes
-      }
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
+    // Initial check
+    const initialCheck = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            setUser(user);
+        }
+        // Only set loading false after onAuthStateChange has had a chance to fire
+        // This avoids flicker/race conditions
+    };
+    initialCheck();
+
     return () => {
-      isMounted = false;
       subscription?.unsubscribe();
     };
   }, []);
 
   useEffect(() => {
-    // This effect runs whenever loading or user state changes.
-    // If loading is finished and there's no user, redirect to home.
     if (!loading && !user) {
-        router.push('/');
+      router.push('/');
     }
   }, [loading, user, router]);
-
 
   const handleChoice = (createProfile: boolean) => {
     if (createProfile) {
@@ -74,7 +63,6 @@ function ChoosePageContent() {
     </div>
   );
 }
-
 
 export default function ChoosePage() {
   return (

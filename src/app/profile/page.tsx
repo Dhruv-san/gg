@@ -1,12 +1,11 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProfileFormView } from '@/components/cofound/profile-form-view';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 
 function ProfilePageContent() {
@@ -16,27 +15,20 @@ function ProfilePageContent() {
 
   useEffect(() => {
     const supabase = createClient();
-    let isMounted = true;
-
-    const checkAndSetUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (isMounted) {
-        setUser(user);
-        setLoading(false);
-      }
-    };
-    
-    checkAndSetUser();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (isMounted) {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
+    const initialCheck = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            setUser(user);
+        }
+    };
+    initialCheck();
+
     return () => {
-      isMounted = false;
       subscription?.unsubscribe();
     };
   }, []);
