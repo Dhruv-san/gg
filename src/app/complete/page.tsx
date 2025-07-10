@@ -18,14 +18,22 @@ function CompletePageContent() {
 
   useEffect(() => {
     const supabase = createClient();
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      // Allow access even if not logged in, but get email if they are
-      if (data.user) {
-        setUser(data.user);
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setUser(session.user);
       }
+    });
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
     };
-    fetchUser();
   }, [router]);
 
 

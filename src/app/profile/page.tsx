@@ -12,25 +12,43 @@ import type { User } from '@supabase/supabase-js';
 function ProfilePageContent() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const supabase = createClient();
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        setUser(session.user);
+        setLoading(false);
+      } else if (event === 'SIGNED_OUT') {
         router.push('/');
-      } else {
-        setUser(data.user);
       }
+    });
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
     };
-    fetchUser();
   }, [router]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [loading, user, router]);
 
   const handleSuccess = () => {
     router.push('/complete');
   };
 
-  if (!user) {
+  if (loading || !user) {
     return <Loader2 className="h-10 w-10 animate-spin text-primary" />;
   }
 
