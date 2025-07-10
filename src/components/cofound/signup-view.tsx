@@ -1,66 +1,52 @@
 
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Mail, LockKeyhole, Loader2, ArrowRight } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { signupSchema } from "@/lib/schemas";
-import { signUpWithEmailAndPassword } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-type SignupFormValues = z.infer<typeof signupSchema>;
 type AppUser = Pick<User, "id" | "email">;
 
 interface SignupViewProps {
   onSuccess: (user: AppUser) => void;
 }
 
+const GoogleIcon = () => (
+  <svg className="mr-2 h-5 w-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+    <path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.3 512 0 398.5 0 256S111.3 0 244 0c69.8 0 125.8 27.9 170.6 69.1L369.5 121.3c-39.8-38.3-91.2-61.4-125.5-61.4C153 60 76.2 135.4 76.2 228.4c0 93.1 76.8 168.4 167.8 168.4 100.3 0 146.5-63.3 150.2-97.1H244v-75.3h236.4c2.5 12.8 3.6 26.4 3.6 40.8z"></path>
+  </svg>
+);
+
 export const SignupView = ({ onSuccess }: SignupViewProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const supabase = createClient();
 
-  const form = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
-  const onSubmit = async (values: SignupFormValues) => {
+  const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
-    const result = await signUpWithEmailAndPassword(values);
-    setIsSubmitting(false);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: location.origin,
+      },
+    });
 
-    if (result.success && result.user) {
-      toast({
-        title: "Welcome aboard!",
-        description: "Your account is created. Let's build your profile.",
-      });
-      onSuccess(result.user);
-    } else {
+    if (error) {
       toast({
         variant: "destructive",
-        title: "Signup Failed",
-        description: result.error || "An unexpected error occurred.",
+        title: "Sign in Failed",
+        description: error.message || "An unexpected error occurred.",
       });
+      setIsSubmitting(false);
     }
+    // Note: The user will be redirected to Google and then back to the app.
+    // The onSuccess callback will be handled by the main page's useEffect.
   };
 
   return (
@@ -70,72 +56,21 @@ export const SignupView = ({ onSuccess }: SignupViewProps) => {
         <CardDescription>Join the waitlist and be the first to get matched.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input
-                        type="email"
-                        placeholder="you@company.com"
-                        className="pl-10 h-12 bg-background/50 border-border/50"
-                        {...field}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <LockKeyhole className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input type="password" placeholder="Create a password" className="pl-10 h-12 bg-background/50 border-border/50" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <LockKeyhole className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input type="password" placeholder="Confirm your password" className="pl-10 h-12 bg-background/50 border-border/50" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full font-bold text-base h-12" size="lg" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <span className="flex items-center justify-center">
-                  Create Account <ArrowRight className="ml-2 h-5 w-5" />
-                </span>
-              )}
-            </Button>
-          </form>
-        </Form>
+        <Button 
+          className="w-full font-bold text-base h-12" 
+          size="lg" 
+          onClick={handleGoogleSignIn}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <>
+              <GoogleIcon />
+              Sign in with Google
+            </>
+          )}
+        </Button>
       </CardContent>
     </Card>
   );
