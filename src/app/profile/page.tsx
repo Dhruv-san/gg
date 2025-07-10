@@ -18,40 +18,28 @@ function ProfilePageContent() {
     const supabase = createClient();
     let isMounted = true;
 
-    const checkUser = async () => {
+    const checkAndSetUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (isMounted) {
-        if (user) {
-          setUser(user);
-          setLoading(false);
-        } else {
-          setTimeout(() => {
-            if (isMounted && !user) setLoading(false);
-          }, 1000);
-        }
+        setUser(user);
+        setLoading(false);
       }
     };
+    
+    checkAndSetUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (isMounted) {
-        if (event === 'SIGNED_IN') {
-          setUser(session!.user);
-          setLoading(false);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setLoading(false);
-          router.push('/');
-        }
+        setUser(session?.user ?? null);
+        setLoading(false);
       }
     });
-
-    checkUser();
 
     return () => {
       isMounted = false;
       subscription?.unsubscribe();
     };
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {

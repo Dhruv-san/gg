@@ -18,44 +18,35 @@ function ChoosePageContent() {
     const supabase = createClient();
     let isMounted = true;
 
-    const checkUser = async () => {
+    const checkAndSetUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (isMounted) {
-        if (user) {
-          setUser(user);
-          setLoading(false);
-        } else {
-          // If no user on initial check, wait for onAuthStateChange
-          // A timeout is a fallback in case the auth state change doesn't fire.
-          setTimeout(() => {
-            if (isMounted && !user) setLoading(false);
-          }, 1000);
-        }
+        setUser(user);
+        // We set loading to false only after the initial check is complete.
+        setLoading(false);
       }
     };
+    
+    // Perform the initial check.
+    checkAndSetUser();
 
+    // Set up the listener for subsequent auth events.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (isMounted) {
-        if (event === 'SIGNED_IN') {
-          setUser(session!.user);
-          setLoading(false);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setLoading(false);
-          router.push('/');
-        }
+        setUser(session?.user ?? null);
+        setLoading(false); // Also update loading state on auth changes
       }
     });
-
-    checkUser();
 
     return () => {
       isMounted = false;
       subscription?.unsubscribe();
     };
-  }, [router]);
+  }, []);
 
   useEffect(() => {
+    // This effect runs whenever loading or user state changes.
+    // If loading is finished and there's no user, redirect to home.
     if (!loading && !user) {
         router.push('/');
     }

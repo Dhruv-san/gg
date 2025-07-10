@@ -2,7 +2,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { ThankYouView } from '@/components/cofound/thank-you-view';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 
 function CompletePageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,24 +20,22 @@ function CompletePageContent() {
     const supabase = createClient();
     let isMounted = true;
 
-    const checkUser = async () => {
+    const checkAndSetUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (isMounted) {
-        if (user) {
-          setUser(user);
-        }
+        setUser(user);
         setLoading(false);
       }
     };
+    
+    checkAndSetUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (isMounted) {
-        setUser(session?.user || null);
+        setUser(session?.user ?? null);
         setLoading(false);
       }
     });
-
-    checkUser();
 
     return () => {
       isMounted = false;
