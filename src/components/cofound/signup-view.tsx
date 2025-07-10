@@ -67,7 +67,7 @@ export const SignupView = ({ onSuccess }: SignupViewProps) => {
           ) : (
             <>
               <GoogleIcon />
-              Sign in with Google
+              Create with Google
             </>
           )}
         </Button>
