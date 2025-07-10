@@ -27,8 +27,8 @@ import { createOrUpdateProfile } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "../ui/label";
 import { Progress } from "@/components/ui/progress";
+import { generateBio, GenerateBioInput } from "@/ai/flows/generate-bio-flow";
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
@@ -127,6 +127,7 @@ export const ProfileFormView = ({ userId, email, onSuccess }: ProfileFormViewPro
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingBio, setIsGeneratingBio] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarRemoved, setAvatarRemoved] = useState(false);
 
@@ -163,6 +164,46 @@ export const ProfileFormView = ({ userId, email, onSuccess }: ProfileFormViewPro
 
   const watchHasIdea = form.watch("has_idea");
 
+  const handleGenerateBio = async () => {
+    const data: GenerateBioInput = {
+      fullName: form.getValues("full_name"),
+      primaryRole: form.getValues("primary_role_seeking") || '',
+      coreSkills: Array.isArray(form.getValues("core_skills")) 
+        ? form.getValues("core_skills")
+        : (form.getValues("core_skills") as any).split(',').map((s:string) => s.trim()).filter(Boolean),
+    };
+
+    if (!data.fullName || !data.primaryRole || data.coreSkills.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please fill out your Full Name, Primary Role, and Core Skills before generating a bio.",
+      });
+      return;
+    }
+
+    setIsGeneratingBio(true);
+    try {
+      const result = await generateBio(data);
+      if (result.bio) {
+        form.setValue("bio", result.bio, { shouldValidate: true });
+        toast({
+          title: "Bio Generated!",
+          description: "Your AI-powered bio has been created.",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating bio:", error);
+      toast({
+        variant: "destructive",
+        title: "Generation Failed",
+        description: "There was an error generating your bio. Please try again.",
+      });
+    } finally {
+      setIsGeneratingBio(false);
+    }
+  };
+  
   const processForm = async (values: ProfileFormValues) => {
     setIsSubmitting(true);
     const formData = new FormData();
@@ -352,6 +393,20 @@ export const ProfileFormView = ({ userId, email, onSuccess }: ProfileFormViewPro
                         <FormField control={form.control} name="bio" render={({ field }) => ( <FormItem>
                           <FormLabel className="flex items-center justify-between w-full">
                             <span className="flex items-center gap-2"><NotebookText className="h-4 w-4" />Short Bio</span>
+                             <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleGenerateBio}
+                              disabled={isGeneratingBio}
+                            >
+                              {isGeneratingBio ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <WandSparkles className="mr-2 h-4 w-4" />
+                              )}
+                              Generate with AI
+                            </Button>
                           </FormLabel>
                           <FormControl><Textarea placeholder="A brief introduction about yourself (max 500 chars)" {...field} /></FormControl>
                           <FormMessage /></FormItem> )} />

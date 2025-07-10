@@ -2,20 +2,11 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Mail, LockKeyhole, Loader2, ArrowRight } from "lucide-react";
-import type { User } from "@supabase/supabase-js";
+import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-type AppUser = Pick<User, "id" | "email">;
-
-interface SignupViewProps {
-  onSuccess: (user: AppUser) => void;
-}
 
 const GoogleIcon = () => (
   <svg className="mr-2 h-5 w-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -23,7 +14,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export const SignupView = ({ onSuccess }: SignupViewProps) => {
+export const SignupView = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const supabase = createClient();
@@ -33,7 +24,7 @@ export const SignupView = ({ onSuccess }: SignupViewProps) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: location.origin,
+        redirectTo: `${location.origin}/auth/callback`,
       },
     });
 
@@ -45,8 +36,6 @@ export const SignupView = ({ onSuccess }: SignupViewProps) => {
       });
       setIsSubmitting(false);
     }
-    // Note: The user will be redirected to Google and then back to the app.
-    // The onSuccess callback will be handled by the main page's useEffect.
   };
 
   return (
