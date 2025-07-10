@@ -26,7 +26,7 @@ export const ProfilePromptView = ({ email, onChoice }: ProfilePromptViewProps) =
         </CardHeader>
         <CardContent className="text-center space-y-6">
           <p className="text-foreground">
-            Want to get a head start? Create your CoFoundr profile now to be among the first to get matched.
+            Want to get a head start? Create your Cofindr profile now to be among the first to get matched.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button

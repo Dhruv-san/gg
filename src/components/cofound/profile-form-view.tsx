@@ -235,7 +235,7 @@ export const ProfileFormView = ({ userId, email, onSuccess }: ProfileFormViewPro
     if (result.success) {
       toast({
         title: "Profile Saved!",
-        description: "Your CoFoundr profile is ready.",
+        description: "Your Cofindr profile is ready.",
       });
       onSuccess();
     } else {
@@ -293,7 +293,7 @@ export const ProfileFormView = ({ userId, email, onSuccess }: ProfileFormViewPro
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold">Create Your CoFoundr Profile</h1>
+        <h1 className="text-4xl font-bold">Create Your Cofindr Profile</h1>
         <p className="text-muted-foreground mt-2">This will help us find your ideal match.</p>
       </div>
 

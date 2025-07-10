@@ -322,7 +322,7 @@ export default function Home() {
               <div className="text-center max-w-3xl mx-auto">
                   <motion.h2 variants={heroItemVariants} className="text-4xl font-bold">Everything You Need to Find a Match</motion.h2>
                   <motion.p variants={heroItemVariants} className="mt-4 text-lg text-muted-foreground">
-                    CoFoundr isn't just a list. It's a comprehensive platform to discover, vet, and connect with your future business partner.
+                    Cofindr isn't just a list. It's a comprehensive platform to discover, vet, and connect with your future business partner.
                   </motion.p>
               </div>
               <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -377,7 +377,7 @@ export default function Home() {
                 WHERE FOUNDERS MEET, AND FUTURES BEGIN
             </p>
           </div>
-          <p className="text-sm text-muted-foreground text-center md:text-left">© {new Date().getFullYear()} CoFoundr. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground text-center md:text-left">© {new Date().getFullYear()} Cofindr. All rights reserved.</p>
           <div className="flex space-x-4">
               <Button variant="ghost" size="sm">Terms</Button>
               <Button variant="ghost" size="sm">Privacy</Button>

@@ -1,4 +1,4 @@
-# CoFound Waitlist
+# Cofindr Waitlist
 
 This is a NextJS starter in Firebase Studio.
 

@@ -36,7 +36,7 @@ export const ThankYouView = ({ email, skippedProfile }: ThankYouViewProps) => {
           <p className="text-foreground">
             {skippedProfile
               ? "We'll keep you updated on our launch. You can complete your profile any time."
-              : "Your CoFoundr profile has been submitted successfully. Get ready for an exciting journey ahead!"}
+              : "Your Cofindr profile has been submitted successfully. Get ready for an exciting journey ahead!"}
           </p>
         </CardContent>
       </Card>
