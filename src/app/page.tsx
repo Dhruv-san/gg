@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-type Stage = "signup" | "prompt" | "profile" | "complete" | "check_email";
+type Stage = "signup" | "profile" | "complete";
 type AppUser = Pick<User, "id" | "email">;
 
 const features = [
@@ -160,7 +160,7 @@ export default function Home() {
 
   const handleSignupSuccess = (newUser: AppUser) => {
     setUser(newUser);
-    setStage("check_email");
+    setStage("profile");
   };
 
   const handlePromptChoice = (createProfile: boolean) => {
@@ -187,24 +187,6 @@ export default function Home() {
     switch (stage) {
       case "signup":
         return null;
-      case "check_email":
-        return (
-          <motion.div key="check_email" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-lg mx-auto">
-            <ThankYouView
-              email={user?.email || ""}
-              isCheckEmailStage={true}
-            />
-          </motion.div>
-        );
-      case "prompt":
-        return (
-          <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-lg mx-auto">
-            <ProfilePromptView
-              email={user?.email || ""}
-              onChoice={handlePromptChoice}
-            />
-          </motion.div>
-        );
       case "profile":
         return (
           <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">

@@ -51,7 +51,7 @@ export const SignupView = ({ onSuccess }: SignupViewProps) => {
     if (result.success && result.user) {
       toast({
         title: "Welcome aboard!",
-        description: "Please check your email to confirm your account.",
+        description: "Your account is created. Let's build your profile.",
       });
       onSuccess(result.user);
     } else {
